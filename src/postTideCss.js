@@ -57,3 +57,4 @@ function fix(s) {
 }
 
 module.exports = fix
+window.fix = fix;

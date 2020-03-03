@@ -50,9 +50,9 @@ function getC($0) {
     }
   }
 
-  chrome.runtime.sendMessage({
-    status: "Preparing ..."
-  });
+  // chrome.runtime.sendMessage({
+  //   status: "Preparing ..."
+  // });
 
   // console.log('NOT return,begin');
   doc = $0.ownerDocument;
@@ -64,7 +64,7 @@ function getC($0) {
       links.push(ele.href);
     }
   });
-  convLinkToText(links).then(function (result) {
+  return convLinkToText(links).then(function (result) {
       var promises = [];
       for (var i = 0; i < result.length; i++) {
         let ele = result[i],
@@ -73,9 +73,10 @@ function getC($0) {
       }
       return Promise.all(promises);
     }).catch(function (err) {
-      chrome.runtime.sendMessage({
-        err: JSON.stringify(err)
-      });
+      console.log(err)
+      // chrome.runtime.sendMessage({
+      //   err: JSON.stringify(err)
+      // });
     }).then(function (result) {
       result.forEach(function (ele) {
         externalCssCache[ele.href] = ele;
@@ -87,28 +88,28 @@ function getC($0) {
     .then(function (objCss) { // {fontFace : Array, keyFram : Array, normRule : Array}
       return filterRules($0, objCss, arrTimerOfTestingIfMatched);
     }).then(function (data) {
-      chrome.runtime.sendMessage({
-        css: postTideCss(data),
-        html: $0.outerHTML.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
-          .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, '')
-          .replace(/<link[\s\S]*?>/gi, '')
-          .replace(/(<img[^>]+src=(['"]))(.*?)(\2.*?>)/g, function () {
-            var src = convUrlToAbs(doc.location.href, arguments[3]);
-            return arguments[1] + src + arguments[4]
-          })
-          .replace(/(<img[^>]+srcset=(['"]))(.*?)(\2.*?>)/g, function () {
-            var srcset = arguments[3].split(/,\s*/)
-            srcset.forEach(function (ele, index) {
-              var src = ele.replace(/([^ ]*)(.*)/, function () {
-                var _src = convUrlToAbs(doc.location.href, arguments[1])
-                return _src + ' ' + arguments[2]
-              })
-              srcset[index] = src;
+    let test_css = postTideCss(data)
+    let test_html = $0.outerHTML.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, '')
+        .replace(/<link[\s\S]*?>/gi, '')
+        .replace(/(<img[^>]+src=(['"]))(.*?)(\2.*?>)/g, function () {
+          var src = convUrlToAbs(doc.location.href, arguments[3]);
+          return arguments[1] + src + arguments[4]
+        })
+        .replace(/(<img[^>]+srcset=(['"]))(.*?)(\2.*?>)/g, function () {
+          var srcset = arguments[3].split(/,\s*/)
+          srcset.forEach(function (ele, index) {
+            var src = ele.replace(/([^ ]*)(.*)/, function () {
+              var _src = convUrlToAbs(doc.location.href, arguments[1])
+              return _src + ' ' + arguments[2]
             })
-            return arguments[1] + srcset.join(',') + arguments[4]
+            srcset[index] = src;
           })
-      });
+          return arguments[1] + srcset.join(',') + arguments[4]
+        })
+        return [test_css, test_html]
     });
 }
 
 module.exports = getC;
+window.getC = getC;

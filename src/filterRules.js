@@ -35,11 +35,12 @@ function filterRules($0, objCss, taskTimerRecord) {
       promises.push(new Promise(function (res, rej) {
         var timer = setTimeout(function () {
           if (idx % 1000 === 0) {
-            chrome.runtime.sendMessage({
-              dom: domlist.length - 1,
-              rule: objCss.normRule.length,
-              rulenow: idx
-            });
+            console.log('a')
+            // chrome.runtime.sendMessage({
+            //   dom: domlist.length - 1,
+            //   rule: objCss.normRule.length,
+            //   rulenow: idx
+            // });
           }
 
           if (typeof rule === 'string') {
@@ -48,14 +49,15 @@ function filterRules($0, objCss, taskTimerRecord) {
           } else {
             var selMatched = [];
             var arrSel = rule.selectors.filter(function (v, i, self) {
-              return self.indexOf(v) === i;
+              return true;
+              //return self.indexOf(v) === i;
             });
             arrSel.forEach(function (sel, i) {
               if (selMatched.indexOf(sel) !== -1) {
                 return;
               }
               // these pseudo class/elements can apply to any ele
-              // but wont apply now 
+              // but wont apply now
               // eg. :active{xxx}
               // only works when clicked on and actived
               if (sel.length<MaxPossiblePseudoLength && sel.match(REG0)){

@@ -48,3 +48,5 @@ node_modules
 # built
 dest/asset/js/content.js
 .cache
+/.idea/
+/package-lock.json
